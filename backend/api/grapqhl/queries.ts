@@ -25,19 +25,77 @@ export const check_user_covid_status: QueryType = {
 
 export const update_user_warn_status: QueryType = {
   operation: {
+    name: "update_Contact",
+    args: {
+      where: {
+        _or: [
+          {
+            primary_user: { _eq: "$p_user" },
+            secondary_user: { _eq: "$s_user" },
+          },
+          {
+            primary_user: { _eq: "$s_user" },
+            secondary_user: { _eq: "$p_user" },
+          },
+        ],
+      },
+      _set: {
+        warn_status: true,
+      },
+    },
+    fields: [
+      {
+        returning: {
+          fields: ["contact_id"],
+        },
+      },
+    ],
+  },
+};
+
+export const update_user_covid_status: QueryType = {
+  operation: {
     name: "update_User_by_pk",
     args: {
       pk_columns: {
         user_id: "$user_id",
       },
       _set: {
-        warn_status: true,
+        covid_status: false,
       },
     },
     fields: ["user_id"],
   },
 };
 
+export const update_contact_warn_neg_status: QueryType = {
+  operation: {
+    name: "update_Contact_by_pk",
+    args: {
+      pk_columns: {
+        contact_id: "$contact_id",
+      },
+      _set: {
+        warn_status: false,
+      },
+    },
+    fields: ["contact_id"],
+  },
+};
+export const update_user_positive_covid_status: QueryType = {
+  operation: {
+    name: "update_User_by_pk",
+    args: {
+      pk_columns: {
+        user_id: "$user_id",
+      },
+      _set: {
+        covid_status: true,
+      },
+    },
+    fields: ["user_id"],
+  },
+};
 // Device(where: {user_id: ""}) {
 //     device_id,
 //     notification_status
@@ -69,10 +127,12 @@ export const get_contacts_from_start_date: QueryType = {
       },
     },
     fields: [
+      "contact_id",
       {
         Secondary_User_Contact: {
           fields: [
             "user_id",
+
             {
               Devices: {
                 fields: ["device_id"],
